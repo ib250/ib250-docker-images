@@ -26,7 +26,7 @@
   in {
     # Schemas tell Nix about the structure of your flake's outputs
     inherit (flake-schemas) schemas;
-    packages = forEachSupportedSystem ({pkgs}: pkgs.callPackage ./images.nix {});
+    packages = forEachSupportedSystem ({pkgs}: pkgs.callPackage ./images.nix {architecture = "amd64";});
 
     formatter = forEachSupportedSystem ({pkgs}: pkgs.alejandra);
 
