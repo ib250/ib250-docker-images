@@ -15,7 +15,7 @@ with pkgs.dockerTools; {
       eza
       bat
       scmpuff
-      zsh-syntax-highlighting
+      zsh-fast-syntax-highlighting
     ];
     inherit architecture;
   };
@@ -31,6 +31,30 @@ with pkgs.dockerTools; {
     name = "duckdb";
     tag = pkgs.lib.version;
     contents = [pkgs.duckdb];
+    inherit architecture;
+  };
+
+  rust = buildLayeredImage {
+    name = "rust";
+    tag = pkgs.lib.version;
+    contents = [
+      (pkgs.fenix.complete.withComponents [
+        "cargo"
+        "clippy"
+        "rust-src"
+        "rustc"
+        "rustfmt"
+      ])
+    ];
+    inherit architecture;
+  };
+
+  nvim-treesitter = buildLayeredImage {
+    name = "nvim-treesitter";
+    tag = pkgs.lib.version;
+    contents = [
+      pkgs.vimPlugins.nvim-treesitter.withAllGrammars
+    ];
     inherit architecture;
   };
 }
