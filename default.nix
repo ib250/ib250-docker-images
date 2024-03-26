@@ -1,9 +1,6 @@
 let
-  pkgs = import (builtins.fetchTarball {
-    name = "nixpkgs-unstable";
-    url = "https://nixos.org/channels/nixpkgs-unstable/nixexprs.tar.xz";
-    sha256 = "sha256:0gdk1lbba8c88y2jj13m8nhzf9bds7f1gw4fhm89p2xz5zagxgiy";
-  }) {};
+  nixpkgs-url = "https://github.com/NixOS/nixpkgs/archive/ada65bada18e2ab9544aa35488b41631a6da2bda.tar.gz";
+  pkgs = import (fetchTarball nixpkgs-url) {};
 in {
   devtools = pkgs.buildEnv {
     name = "devtools";
@@ -21,24 +18,30 @@ in {
 
   inherit (pkgs) duckdb;
 
+  inherit (pkgs) goose;
+
+  golang = pkgs.buildEnv {
+    name = "golang";
+    paths = with pkgs; [go_1_22 gopls];
+  };
+
+  neovim-flake = pkgs.buildEnv {
+    name = "neovim-flake";
+    paths = let
+      inherit (pkgs) system;
+      flake = builtins.getFlake "github:ib250/neovim-flake";
+    in [flake.packages.${system}.default];
+  };
+
   rust = let
-    fenix = import (builtins.fetchTarball {
-      name = "fenix-unstable";
-      url = "https://github.com/nix-community/fenix/archive/main.tar.gz";
-      sha256 = "sha256:1490vqc12xfvncw499k1wpns2zyk7rfsfsahm1b85npiniina9si";
-    }) {};
+    fenix-url = "https://github.com/nix-community/fenix/archive/85f4139f3c092cf4afd9f9906d7ed218ef262c97.tar.gz";
+    fenix = import (fetchTarball fenix-url) {};
   in
     pkgs.buildEnv {
-      name = "fenix-complete-rust";
-      paths = [
-        (fenix.complete.withComponents [
-          "cargo"
-          "clippy"
-          "rust-src"
-          "rustc"
-          "rustfmt"
-        ])
-        fenix.rust-analyzer
+      name = "fenix-rust";
+      paths = with pkgs; [
+        fenix.minimal.toolchain
+        rust-analyzer
       ];
     };
 }

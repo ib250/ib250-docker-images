@@ -1,10 +1,12 @@
-from --platform=$BUILDPLATFORM nixos/nix:latest as build
-arg ATTR
+from nixos/nix:latest as build
+
 run mkdir work
 workdir work
+copy nix.conf nix.conf
+env NIX_CONF_DIR=/work
+
+arg ATTR
 copy default.nix .
-env NIX_CONFIG="extra-experimental-features = nix-command flakes"
-run nix build -f default.nix $ATTR
 run nix copy --to /tmp/out -f default.nix $ATTR --no-require-sigs
 run nix-collect-garbage -d
 
