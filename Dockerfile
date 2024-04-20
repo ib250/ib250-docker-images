@@ -6,8 +6,7 @@ env NIX_CONF_DIR=/work
 copy default.nix .
 copy flake.nix .
 copy flake.lock .
-# run nix flake check --no-build
+# run nix flake check --no-build '.#'$ATTR
 
 arg ATTR
 run nix profile install -j8 '.#'$ATTR --impure
-run nix store gc -j8

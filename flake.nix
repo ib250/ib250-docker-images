@@ -7,7 +7,7 @@
     fenix.url = "github:nix-community/fenix";
     fenix.inputs.nixpkgs.follows = "nixpkgs";
 
-    neovim-flake.url = "github:ib250/neovim-flake/switch-to-kickstart";
+    neovim-flake.url = "github:ib250/neovim-flake";
     neovim-flake.inputs.nixpkgs.follows = "nixpkgs";
   };
 
