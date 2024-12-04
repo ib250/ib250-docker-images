@@ -2,6 +2,7 @@
   pkgs,
   fenix,
   neovim-flake,
+  inputs,
   ...
 }: let
   buildEnv' = args:
@@ -9,18 +10,13 @@
 in {
   devtools = buildEnv' {
     name = "devtools";
-    paths = with pkgs; [
+    paths = with inputs.neovim-flake.nixpkgs; [
       bat
       eza
-      ripgrep
-      fd
-      fzf
-      fzf-zsh
-      fzf-git-sh
-      neovim-flake
-      scmpuff
       zsh-fast-syntax-highlighting
       zoxide
+      # fd fzf ripgrep already provided by neovim-flake.nvim-overlay-env
+      neovim-flake.nvim-overlay-env
     ];
   };
 

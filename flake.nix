@@ -5,10 +5,10 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
     fenix.url = "github:nix-community/fenix";
-    fenix.inputs.nixpkgs.follows = "nixpkgs";
+    # fenix.inputs.nixpkgs.follows = "nixpkgs";
 
     neovim-flake.url = "github:ib250/neovim-flake";
-    neovim-flake.inputs.nixpkgs.follows = "nixpkgs";
+    # neovim-flake.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -26,26 +26,35 @@
       pkgs = {};
       fenix = {};
       neovim-flake = {};
+      inputs = {};
     });
 
     packages = eachSystem (system: let
       pkgs = import nixpkgs {inherit system;};
 
-      buildImage = pkgs.writeScriptBin "build-image" ''
-        set -eou pipefail
-        docker buildx build --platform $DOCKER_BUILD_PLATFORM . "$@"
-      '';
+      buildImage =
+        pkgs.writeScriptBin "build-image"
+        # sh
+        ''
+          set -eou pipefail
+          docker buildx build --platform $DOCKER_BUILD_PLATFORM . "$@"
+        '';
 
-      buildImages' = map (image: ''
-        ${self.packages.${system}.buildImage}/bin/build-image \
-          --build-arg ATTR=${image} -t $REPO/${image}:latest \
-          --push
-      '');
+      buildImages' = map (image:
+        # sh
+        ''
+          ${self.packages.${system}.buildImage}/bin/build-image \
+            --build-arg ATTR=${image} -t $REPO/${image}:latest \
+            --push
+        '');
 
-      buildAndPushAllImages = pkgs.writeScriptBin "build-and-push-all" ''
-        set -eoux pipefail
-        ${builtins.concatStringsSep "\n" (buildImages' self.lib.images)}
-      '';
+      buildAndPushAllImages =
+        pkgs.writeScriptBin "build-and-push-all"
+        # sh
+        ''
+          set -eoux pipefail
+          ${builtins.concatStringsSep "\n" (buildImages' self.lib.images)}
+        '';
     in
       {
         inherit
@@ -55,7 +64,12 @@
       }
       // (pkgs.callPackages ./default.nix {
         fenix = fenix.packages.${system};
-        neovim-flake = neovim-flake.packages.${system}.default;
+        neovim-flake = neovim-flake.packages.${system};
+        inputs = {
+          neovim-flake = {
+            nixpkgs = neovim-flake.inputs.nixpkgs.legacyPackages.${system};
+          };
+        };
       }));
 
     devShells = eachSystem (system: let
@@ -65,7 +79,9 @@
       default = let
         mkBuildImage' = image:
           with self-pkgs;
-            pkgs.writeScriptBin "build.${image}" ''
+            pkgs.writeScriptBin "build.${image}"
+            # bash
+            ''
               ${buildImage}/bin/build-image --build-arg "ATTR=${image}" -t $REPO/${image}:latest "$@"
             '';
       in
